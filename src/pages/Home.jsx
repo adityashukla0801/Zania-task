@@ -54,8 +54,6 @@ function Home() {
     setSelectedImage(null);
   };
 
-  // src/Home.js (Frontend code)
-
   useEffect(() => {
     const saveData = () => {
       setIsSaving(true);

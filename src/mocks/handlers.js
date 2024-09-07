@@ -1,3 +1,4 @@
+// src/mocks/handlers.js
 import { rest } from "msw";
 
 const getStoredData = () => JSON.parse(localStorage.getItem("cards")) || [];
@@ -14,11 +15,7 @@ export const handlers = [
     try {
       const newCards = JSON.parse(req.body);
       setStoredData(newCards);
-      return res(
-        ctx.status(200),
-        ctx.json({ message: "Success" }),
-        ctx.set("Content-Type", "application/json")
-      );
+      return res(ctx.status(200), ctx.json({ message: "Success" }));
     } catch (error) {
       console.error("Failed to save data:", error);
       return res(ctx.status(500), ctx.json({ error: "Failed to save data" }));
