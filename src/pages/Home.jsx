@@ -57,28 +57,6 @@ function Home() {
   useEffect(() => {
     const saveData = () => {
       setIsSaving(true);
-      fetch("/api/cards", {
-        method: "POST",
-        body: JSON.stringify(cards),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Saved successfully:", data);
-        })
-        .catch((error) => {
-          console.error("Error saving data:", error);
-        })
-        .finally(() => {
-          setIsSaving(false);
-        });
     };
 
     const interval = setInterval(() => {
