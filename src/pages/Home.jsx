@@ -9,20 +9,41 @@ function Home() {
   const [isSaving, setIsSaving] = useState(false);
   const cardsContainerRef = useRef(null); // useRef for the container
 
-  // Load cards data from localStorage or JSON file
   useEffect(() => {
     const fetchData = async () => {
-      let data = JSON.parse(localStorage.getItem("cards"));
-      if (!data) {
-        const response = await fetch("/data.json");
-        data = await response.json();
-        localStorage.setItem("cards", JSON.stringify(data));
+      try {
+        // Try to fetch data from the mock API
+        const response = await fetch("/api/cards");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data from API");
+        }
+
+        const data = await response.json();
+
+        // If data exists, update the state and localStorage
+        if (data.length) {
+          setCards(data);
+          localStorage.setItem("cards", JSON.stringify(data));
+        }
+      } catch (error) {
+        // If API fails, fallback to loading from localStorage or JSON file
+        console.error(
+          "Error fetching data from API, falling back to localStorage:",
+          error
+        );
+
+        let localData = JSON.parse(localStorage.getItem("cards"));
+
+        if (!localData) {
+          // If no data in localStorage, load it from the JSON file
+          const response = await fetch("/data.json");
+          localData = await response.json();
+          localStorage.setItem("cards", JSON.stringify(localData));
+        }
+
+        setCards(localData.map((card) => ({ ...card })));
       }
-      setCards(
-        data.map((card) => ({
-          ...card,
-        }))
-      );
     };
 
     fetchData();
@@ -31,7 +52,7 @@ function Home() {
   useEffect(() => {
     if (cardsContainerRef.current) {
       const sortable = Sortable.create(cardsContainerRef.current, {
-        animation: 150,
+        animation: 500,
         onEnd: (evt) => {
           const newOrder = [...cards];
           const [removed] = newOrder.splice(evt.oldIndex, 1); // Remove the dragged card
@@ -57,6 +78,28 @@ function Home() {
   useEffect(() => {
     const saveData = () => {
       setIsSaving(true);
+      fetch("/api/cards", {
+        method: "POST",
+        body: JSON.stringify(cards),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Saved successfully:", data);
+        })
+        .catch((error) => {
+          console.error("Error saving data:", error);
+        })
+        .finally(() => {
+          setIsSaving(false);
+        });
     };
 
     const interval = setInterval(() => {
