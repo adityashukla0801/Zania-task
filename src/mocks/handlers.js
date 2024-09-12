@@ -1,45 +1,23 @@
+// mocks/handlers.js
 import { rest } from "msw";
 
-// Utility to get data from localStorage
-const getStoredData = () => {
-  const storedData = localStorage.getItem("cards");
-  return storedData ? JSON.parse(storedData) : [];
-};
-
-// Utility to store data in localStorage
-const setStoredData = (data) => {
-  localStorage.setItem("cards", JSON.stringify(data));
-};
-
 export const handlers = [
-  // Mock GET request to fetch data from localStorage
+  // Mock GET request for fetching cards
   rest.get("/api/cards", (req, res, ctx) => {
-    const cards = getStoredData();
+    const cards = JSON.parse(localStorage.getItem("cards")) || [];
     return res(
       ctx.status(200),
-      ctx.json(cards),
-      ctx.set("Access-Control-Allow-Origin", "*") // CORS Header
+      ctx.json(cards) // Send the cards stored in local storage
     );
   }),
 
-  // Mock POST request to add data to localStorage
+  // Mock POST request for saving cards
   rest.post("/api/cards", (req, res, ctx) => {
-    const newCard = req.body;
-    const currentData = getStoredData();
-    const updatedData = [...currentData, newCard];
-    setStoredData(updatedData);
+    const updatedCards = req.body;
+    localStorage.setItem("cards", JSON.stringify(updatedCards));
     return res(
-      ctx.status(201),
-      ctx.json(newCard),
-      ctx.set("Access-Control-Allow-Origin", "*") // CORS Header
+      ctx.status(200),
+      ctx.json({ message: "Cards saved successfully" })
     );
   }),
 ];
-
-// API Design for Long-term Maintenance
-// Design endpoints to handle:
-
-// GET /api/cards: Fetch all cards.
-// POST /api/cards: Add a new card.
-// PUT /api/cards/{id}: Update an existing card.
-// DELETE /api/cards/{id}: Remove a card.
