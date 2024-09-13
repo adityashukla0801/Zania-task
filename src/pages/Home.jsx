@@ -51,13 +51,18 @@ function Home() {
   useEffect(() => {
     if (cardsContainerRef.current) {
       const sortable = Sortable.create(cardsContainerRef.current, {
-        animation: 500,
+        animation: 500, // Increase animation duration
+        easing: "ease-out", // Smooth easing for more natural feel
         onEnd: (evt) => {
           const newOrder = [...cards];
           const [removed] = newOrder.splice(evt.oldIndex, 1);
           newOrder.splice(evt.newIndex, 0, removed);
-          setCards(newOrder);
-          localStorage.setItem("cards", JSON.stringify(newOrder));
+
+          // Delay updating the state to allow smooth transition
+          setTimeout(() => {
+            setCards(newOrder);
+            localStorage.setItem("cards", JSON.stringify(newOrder));
+          }, 100); // Delay to let CSS transition happen
         },
       });
 
